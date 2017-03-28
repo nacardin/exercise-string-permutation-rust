@@ -5,46 +5,56 @@ use std::env;
 fn main() {
     let start = PreciseTime::now();
     
-    let mut input_str = env::args().nth(1).unwrap();
+    let input_str = env::args().nth(1).unwrap();
 
-    let permutations = go_deeper(input_str);
+    let permutations = permute(input_str);
+    println!("permutations {:?}", permutations);
 
-    println!("{:?}", permutations);
     let end = PreciseTime::now();
-
     println!("execution time {:?}", start.to(end));
 }
 
-fn go_deeper(str: String) -> Vec<String> {
-
-
+fn permute(input_string: String) -> Vec<String> {
 
     let mut permutations = Vec::new();
 
-    for c_idx in 0..str.len() {
+    for input_string_index in 0..input_string.len() {
 
-        let mut cloned_str = str.clone();
-            // println!("{:?}", cloned_str);
-
+        let mut cloned_str = input_string.clone();
         if cloned_str.len() == 1 {
             return vec![cloned_str];
         }
 
-        let popped_char = cloned_str.remove(c_idx);
+        let popped_char = cloned_str.remove(input_string_index);
 
-        let deeper_permutations = go_deeper(cloned_str);
+        let child_permutations = permute(cloned_str);
 
-        for d_idx in 0..deeper_permutations.len() {
-            let mut deeper_permutation = deeper_permutations[d_idx].clone();
-            deeper_permutation.insert(0, popped_char);
-            permutations.push(deeper_permutation);
+        for child_permutation in child_permutations.into_iter() {
+            let mut child_permutation_clone = child_permutation.clone();
+            child_permutation_clone.insert(0, popped_char);
+            permutations.push(child_permutation_clone);
         }
-
-        // println!("{:?}", c);
     }
 
-
-    // permutations.push(String::from("directions"));
-
     return permutations;
+}
+
+#[test]
+fn permute_test() {
+
+    fn contains(vec: &Vec<String>, item: &str) -> bool {
+        return vec.contains(&String::from(item));
+    }
+
+    let results = permute(String::from("abc"));
+
+    assert_eq!(results.len(), 6);
+    assert!(contains(&results, "abc"));
+    assert!(contains(&results, "acb"));
+    assert!(contains(&results, "bac"));
+    assert!(contains(&results, "bca"));
+    assert!(contains(&results, "cab"));
+    assert!(contains(&results, "cba"));
+
+
 }
